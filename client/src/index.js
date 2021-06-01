@@ -8,11 +8,14 @@ class App extends React.Component {
     this.state = {
       cows: [],
       name1: '',
-      description1: ''
+      description1: '',
+      curCow: '',
+      curDesc: ''
     }
     this.handleClick = this.handleClick.bind(this);
     this.handleNameChange = this.handleNameChange.bind(this);
-    this.handleDescChange = this.handleDescChange.bind(this)
+    this.handleDescChange = this.handleDescChange.bind(this);
+    this.handleCowClick = this.handleCowClick.bind(this);
   }
 
   componentDidMount() {
@@ -22,7 +25,6 @@ class App extends React.Component {
   updateCows() {
     axios.get('/api/cows/')
     .then((response)=> {
-      console.log(response.data)
       this.setState({
         cows: response.data
       })
@@ -48,6 +50,7 @@ class App extends React.Component {
 
 
 
+
   handleNameChange = (event) => this.setState({ name1: event.target.value });
   handleDescChange = (event) => this.setState({ description1: event.target.value });
 
@@ -63,18 +66,38 @@ class App extends React.Component {
 
   }
 
+  handleCowClick = (id) => {
+    axios.get('/api/cows/')
+    .then((response)=> {
+      var data = response.data;
+
+
+      for(var i = 0; i < data.length; i++) {
+        if(data[i].ID === id) {
+          this.setState({ curCow: data[i].name1 });
+          this.setState({ curDesc: data[i].description1 });
+        }
+      }
+
+
+    })
+    .catch((err) => {
+      console.log(err)
+    });
+  }
 
   render() {
     return (
       <div>
         <h1>Cows List</h1>
-        <ul>
+        <div id="current">{this.state.curCow}: {this.state.curDesc} </div>
+        <div>
         {this.state.cows.map((cow) => (
-         <li key={cow.ID}>
+         <div key={cow.ID} onClick={() => this.handleCowClick(cow.ID)} >
           {cow.name1}
-          </li>
+          </div>
         ))}
-         </ul>
+         </div>
          <h2>Add Cow:</h2>
     <form onSubmit={this.handleClick}>
     <p><label htmlFor="name">Name:</label>
